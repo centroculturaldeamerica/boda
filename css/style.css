@@ -1,0 +1,76 @@
+:root{
+  --crema: #F8F3EA; --crema-2: #F1E9DA; --tinta: #2E2822;
+  --coral: #DD7E63; --ocre: #BE8A3F; --vino: #722F3A;
+  --salvia: #7C8A6A; --verde: #3E4E39; --linea: rgba(46,40,34,0.18);
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{ background:var(--crema); color:var(--tinta); font-family:'Jost', sans-serif; font-weight:300; line-height:1.6; overflow-x:hidden; }
+.wrap{ max-width:520px; margin:0 auto; position:relative; }
+h1,h2,.script{ font-family:'Petit Formal Script', cursive; font-weight:400; }
+.serif{ font-family:'Cormorant Garamond', serif; }
+.eyebrow{ font-family:'Jost', sans-serif; font-size:0.72rem; letter-spacing:0.32em; text-transform:uppercase; color:var(--vino); }
+section{ padding:64px 32px; position:relative; }
+.divider{ width:1px; height:40px; background:var(--linea); margin:24px auto; }
+.arco{ width:100%; aspect-ratio:3/4; background:linear-gradient(160deg,#C9BBA0,#A99878 55%,#8C7C5E); border-radius:50% 50% 4px 4px / 32% 32% 4px 4px; position:relative; overflow:hidden; box-shadow:0 18px 40px -18px rgba(46,40,34,0.45); }
+.arco img{ width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+.arco .placeholder-label{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#F8F3EA; font-family:'Jost'; font-size:0.75rem; letter-spacing:0.1em; text-align:center; padding:20px; background:rgba(46,40,34,0.15); }
+.portada{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:48px 28px; background:radial-gradient(circle at 50% 0%, rgba(190,138,63,0.10), transparent 60%), var(--crema); }
+.portada .arco{ width:74%; max-width:300px; margin-bottom:28px; }
+.nombres{ font-size:3rem; color:var(--vino); line-height:1; }
+.amp{ color:var(--coral); }
+.subtitulo{ margin-top:6px; font-family:'Cormorant Garamond'; font-style:italic; font-size:1.15rem; color:var(--tinta); }
+.barra-audio{ width:100%; max-width:340px; margin-top:36px; }
+.slider-linea{ position:relative; height:1px; background:var(--linea); margin:0 4px 18px; }
+.slider-punto{ position:absolute; top:50%; left:14%; width:9px; height:9px; border-radius:50%; background:var(--vino); transform:translate(-50%,-50%); }
+.slider-corazon{ position:absolute; top:50%; right:0; transform:translateY(-50%); font-size:1rem; color:var(--vino); }
+.audio-card{ display:flex; align-items:center; gap:12px; background:var(--tinta); color:var(--crema); border-radius:10px; padding:10px 14px; text-align:left; }
+.audio-card .info{ flex:1; min-width:0; }
+.audio-card .titulo-cancion{ font-size:0.82rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.audio-card .subtitulo-cancion{ font-size:0.7rem; opacity:0.65; }
+.play-btn{ width:32px; height:32px; border-radius:50%; background:var(--coral); border:none; color:var(--crema); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:0.8rem; }
+.countdown{ display:flex; gap:18px; justify-content:center; margin-top:40px; }
+.countdown .bloque{ text-align:center; }
+.countdown .numero{ font-family:'Cormorant Garamond'; font-size:1.9rem; color:var(--vino); }
+.countdown .label{ font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; opacity:0.7; }
+.bendicion{ text-align:center; }
+.bendicion p{ font-family:'Cormorant Garamond'; font-size:1.25rem; font-style:italic; }
+.bendicion .grande{ font-size:2.3rem; margin-top:18px; color:var(--coral); }
+.tarjetas-evento{ display:flex; flex-direction:column; gap:20px; margin-top:32px; }
+.tarjeta{ border:1px solid var(--linea); border-radius:14px; padding:26px 24px; background:var(--crema-2); }
+.tarjeta h3{ font-family:'Cormorant Garamond'; font-size:1.4rem; margin-bottom:4px; }
+.tarjeta .hora{ font-size:1.6rem; font-family:'Cormorant Garamond'; color:var(--vino); margin:6px 0; }
+.tarjeta .lugar{ font-style:italic; font-family:'Cormorant Garamond'; font-size:1.05rem; }
+.tarjeta a.mapa{ display:inline-block; margin-top:14px; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--vino); border-bottom:1px solid var(--vino); text-decoration:none; padding-bottom:2px; }
+.galeria-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:32px; }
+.galeria-grid .arco{ aspect-ratio:3/4; }
+.colores{ display:flex; gap:12px; justify-content:center; margin-top:20px; }
+.colores span{ width:30px; height:30px; border-radius:50%; display:inline-block; box-shadow:0 4px 10px rgba(0,0,0,0.15); }
+.info-doble{ display:flex; gap:24px; justify-content:center; margin-top:36px; text-align:center; }
+.info-doble .num{ font-family:'Cormorant Garamond'; font-size:2rem; color:var(--vino); }
+.caja-regalo{ border:1px dashed var(--linea); border-radius:14px; padding:24px; text-align:center; margin-top:20px; }
+.rsvp{ background:var(--tinta); color:var(--crema); }
+.rsvp .eyebrow{ color:var(--coral); }
+.rsvp h2{ color:var(--crema); font-size:2.2rem; }
+.rsvp p.cupo{ font-family:'Cormorant Garamond'; font-style:italic; font-size:1.1rem; margin-top:6px; }
+.campo{ margin-top:22px; }
+.campo label{ display:block; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.7; margin-bottom:8px; }
+.campo input, .campo textarea{ width:100%; background:transparent; border:none; border-bottom:1px solid rgba(248,243,234,0.35); color:var(--crema); font-family:'Jost'; font-size:0.95rem; padding:8px 2px; outline:none; }
+.campo input::placeholder, .campo textarea::placeholder{ color:rgba(248,243,234,0.4); }
+.campo textarea{ resize:none; }
+.campo-radio{ display:flex; gap:14px; margin-top:10px; }
+.campo-radio label{ flex:1; text-align:center; border:1px solid rgba(248,243,234,0.35); border-radius:8px; padding:12px; cursor:pointer; font-size:0.85rem; text-transform:none; letter-spacing:0; }
+.campo-radio input{ display:none; width:auto; }
+.campo-radio label.activo{ background:var(--coral); border-color:var(--coral); }
+.acompanante-bloque{ border-top:1px solid rgba(248,243,234,0.15); margin-top:26px; padding-top:18px; }
+.acompanante-bloque .num-acomp{ font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--coral); }
+.btn-enviar{ width:100%; margin-top:34px; padding:16px; border:none; border-radius:8px; background:var(--coral); color:var(--crema); font-family:'Jost'; font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; }
+.btn-enviar:disabled{ opacity:0.5; cursor:not-allowed; }
+.msg-estado{ margin-top:14px; font-size:0.82rem; text-align:center; min-height:1.2em; }
+.confirmacion{ text-align:center; display:none; }
+.confirmacion.activa{ display:block; }
+.qr-box{ background:#fff; padding:20px; border-radius:16px; display:inline-block; margin-top:24px; box-shadow:0 18px 40px -18px rgba(46,40,34,0.5); }
+.confirmacion .nota{ margin-top:18px; font-size:0.8rem; opacity:0.75; max-width:320px; margin-left:auto; margin-right:auto; }
+footer{ text-align:center; padding:40px 24px; }
+footer .firma{ font-family:'Petit Formal Script'; font-size:2rem; color:var(--vino); }
+.estado-carga, .estado-error{ text-align:center; padding:120px 32px; font-family:'Cormorant Garamond'; font-style:italic; }
