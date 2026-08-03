@@ -17,10 +17,15 @@ async function iniciar() {
 
     document.getElementById("estadoCarga").style.display = "none";
     document.getElementById("contenido").style.display = "block";
+    observarSecciones();
 
     if (data.confirmado) {
       document.getElementById("seccionRSVP").querySelector("form").style.display = "none";
-      mostrarConfirmacion(idInvitacion);
+      if (data.invitados === "No asistirá") {
+        mostrarNoAsiste();
+      } else {
+        mostrarConfirmacion(idInvitacion);
+      }
     } else {
       cupoMaximo = Number(data.cupo) || 1;
       document.getElementById("nombreInvitado").textContent = data.nombre || "";
@@ -123,7 +128,7 @@ document.getElementById("formRSVP").addEventListener("submit", async (e) => {
   if (!asiste) {
     btn.disabled = true;
     msg.textContent = "Enviando...";
-    await enviarConfirmacion([], "");
+    await enviarConfirmacion([], "", false);
     return;
   }
 
@@ -140,10 +145,10 @@ document.getElementById("formRSVP").addEventListener("submit", async (e) => {
 
   btn.disabled = true;
   msg.textContent = "Enviando...";
-  await enviarConfirmacion(nombres, telefono);
+  await enviarConfirmacion(nombres, telefono, true);
 });
 
-async function enviarConfirmacion(nombres, telefono) {
+async function enviarConfirmacion(nombres, telefono, asiste) {
   const msg = document.getElementById("msgEstado");
   const btn = document.getElementById("btnEnviar");
 
@@ -151,6 +156,7 @@ async function enviarConfirmacion(nombres, telefono) {
     id: idInvitacion,
     telefono: telefono,
     invitados: nombres,
+    asiste: asiste,
     cancion: document.getElementById("cancion").value.trim(),
     mensaje: document.getElementById("mensaje").value.trim()
   };
@@ -165,7 +171,11 @@ async function enviarConfirmacion(nombres, telefono) {
 
     if (data.success) {
       document.getElementById("formRSVP").style.display = "none";
-      mostrarConfirmacion(idInvitacion);
+      if (asiste) {
+        mostrarConfirmacion(idInvitacion);
+      } else {
+        mostrarNoAsiste();
+      }
     } else {
       msg.textContent = data.error || "Ocurrió un error, intenta de nuevo.";
       btn.disabled = false;
@@ -176,14 +186,30 @@ async function enviarConfirmacion(nombres, telefono) {
   }
 }
 
+function mostrarNoAsiste() {
+  const cont = document.getElementById("pantallaConfirmacion");
+  cont.classList.add("activa");
+  cont.innerHTML = `
+    <p class="eyebrow">Gracias por avisarnos</p>
+    <h2 class="script" style="font-size:2.2rem;">Los extrañaremos</h2>
+    <p class="nota" style="margin-top:18px;">Lamentamos que no puedan acompañarnos, pero agradecemos muchísimo que se hayan tomado el tiempo de responder. ¡Un abrazo!</p>
+  `;
+}
+
 /* ============================================
    7. PANTALLA FINAL CON QR
    ============================================ */
 function mostrarConfirmacion(id) {
   document.getElementById("pantallaConfirmacion").classList.add("activa");
   document.getElementById("qrcode").innerHTML = "";
+
+  // El QR guarda un LINK (no solo el texto del ID), para que cualquier
+  // cámara o Google Lens abra directamente la página con los datos del invitado.
+  const base = window.location.origin + window.location.pathname.replace(/index\.html$/, "");
+  const urlMesa = base + "mesa.html?id=" + encodeURIComponent(id);
+
   new QRCode(document.getElementById("qrcode"), {
-    text: id,
+    text: urlMesa,
     width: 180,
     height: 180,
     colorDark: "#2E2822",
@@ -192,3 +218,74 @@ function mostrarConfirmacion(id) {
 }
 
 iniciar();
+
+/* ============================================
+   8. BARRA DE PROGRESO DE SCROLL
+   ============================================ */
+window.addEventListener("scroll", () => {
+  const alto = document.documentElement.scrollHeight - window.innerHeight;
+  const progreso = alto > 0 ? (window.scrollY / alto) * 100 : 0;
+  document.getElementById("barraProgreso").style.width = progreso + "%";
+});
+
+/* ============================================
+   9. ANIMACIONES FADE-IN AL HACER SCROLL
+   ============================================ */
+const observador = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add("visible");
+  });
+}, { threshold: 0.15 });
+
+// Se activa una vez que el contenido ya es visible (después de iniciar())
+const observarSecciones = () => {
+  document.querySelectorAll(".fade-in").forEach(el => observador.observe(el));
+};
+
+/* ============================================
+   10. BOTÓN FLOTANTE "CONFIRMAR ASISTENCIA"
+   ============================================ */
+const btnFlotante = document.getElementById("btnFlotante");
+btnFlotante.addEventListener("click", () => {
+  document.getElementById("seccionRSVP").scrollIntoView({ behavior: "smooth" });
+});
+
+window.addEventListener("scroll", () => {
+  const rsvp = document.getElementById("seccionRSVP");
+  if (!rsvp || document.getElementById("contenido").style.display === "none") return;
+  const rectRsvp = rsvp.getBoundingClientRect();
+  const rectPortada = document.querySelector(".portada").getBoundingClientRect();
+  // Se muestra después de pasar la portada, se oculta al llegar al formulario
+  const mostrar = rectPortada.bottom < 0 && rectRsvp.top > window.innerHeight * 0.3;
+  btnFlotante.classList.toggle("visible", mostrar);
+});
+
+/* ============================================
+   11. GUARDAR QR COMO IMAGEN
+   ============================================ */
+document.getElementById("btnGuardarQR").addEventListener("click", () => {
+  const canvas = document.querySelector("#qrcode canvas");
+  if (!canvas) return;
+
+  if (navigator.share && navigator.canShare) {
+    canvas.toBlob(async (blob) => {
+      const archivo = new File([blob], "mi-qr-boda.png", { type: "image/png" });
+      if (navigator.canShare({ files: [archivo] })) {
+        try {
+          await navigator.share({ files: [archivo], title: "Mi código QR - Boda" });
+          return;
+        } catch (e) { /* si cancela, seguimos con la descarga normal */ }
+      }
+      descargarCanvas(canvas);
+    });
+  } else {
+    descargarCanvas(canvas);
+  }
+});
+
+function descargarCanvas(canvas) {
+  const link = document.createElement("a");
+  link.download = "mi-qr-boda.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}

@@ -1,143 +1,216 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Evelyn &amp; Adrian — Nos casamos</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Petit+Formal+Script&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evelyn &amp; Adrian — Nos casamos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Petit+Formal+Script&family=Jost:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-<div class="wrap" id="app">
-  <div class="estado-carga" id="estadoCarga">Cargando tu invitación…</div>
+  <div class="barra-progreso" id="barraProgreso"></div>
 
-  <div id="contenido" style="display:none;">
-    <section class="portada">
-      <div class="arco"><div class="placeholder-label"><br><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXKctqJlIj17-lZgFCbQfECevfVT4Y7my5WmfPyYJUtA&s=10" alt=""></div></div>
-      <h1 class="nombres">Evelyn <span class="amp">&amp;</span> Adrian</h1>
-      <p class="subtitulo">Nos casamos</p>
+  <div class="wrap" id="app">
+    <div class="estado-carga" id="estadoCarga">
+      <div class="corazon-latido">♥</div>
+      <p class="eyebrow" style="margin-top:16px;">Cargando tu invitación…</p>
+    </div>
 
-      <div class="barra-audio">
-        <div class="slider-linea"><div class="slider-punto"></div><div class="slider-corazon">♥</div></div>
-        <div class="audio-card">
-          <button class="play-btn" id="btnPlay" aria-label="Reproducir música">▶</button>
-          <div class="info">
-            <div class="titulo-cancion" id="tituloCancion">Nombre de la canción</div>
-            <div class="subtitulo-cancion">Escuchar</div>
+    <div id="contenido" style="display:none;">
+      <section class="portada">
+        <div class="arco">
+          <div class="placeholder-label"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdeuoij_2RqM7IpkqfvAPUCu_YP4owJdUrjMF1cEpfBA&s=10" alt=""></div>
+        </div>
+        <h1 class="nombres">Evelyn <span class="amp">&amp;</span> Adrian</h1>
+        <p class="subtitulo">Nos casamos</p>
+
+        <div class="barra-audio">
+          <div class="slider-linea">
+            <div class="slider-punto"></div>
+            <div class="slider-corazon">♥</div>
+          </div>
+          <div class="audio-card">
+            <button class="play-btn" id="btnPlay" aria-label="Reproducir música">▶</button>
+            <div class="info">
+              <div class="titulo-cancion" id="tituloCancion">Nombre de la canción</div>
+              <div class="subtitulo-cancion">Escuchar</div>
+            </div>
+          </div>
+          <audio id="audioFondo" src="" preload="none"></audio>
+        </div>
+
+        <div class="countdown" id="countdown">
+          <div class="bloque">
+            <div class="numero" id="cdDias">00</div>
+            <div class="label">Días</div>
+          </div>
+          <div class="bloque">
+            <div class="numero" id="cdHoras">00</div>
+            <div class="label">Hrs</div>
+          </div>
+          <div class="bloque">
+            <div class="numero" id="cdMin">00</div>
+            <div class="label">Min</div>
+          </div>
+          <div class="bloque">
+            <div class="numero" id="cdSeg">00</div>
+            <div class="label">Seg</div>
           </div>
         </div>
-        <audio id="audioFondo" src="https://www.youtube.com/watch?v=NDAFY53qd7Q&list=RDNDAFY53qd7Q&start_radio=1.mp3" preload="none"></audio>
-      </div>
+      </section>
 
-      <div class="countdown" id="countdown">
-        <div class="bloque"><div class="numero" id="cdDias">00</div><div class="label">Días</div></div>
-        <div class="bloque"><div class="numero" id="cdHoras">00</div><div class="label">Hrs</div></div>
-        <div class="bloque"><div class="numero" id="cdMin">00</div><div class="label">Min</div></div>
-        <div class="bloque"><div class="numero" id="cdSeg">00</div><div class="label">Seg</div></div>
-      </div>
-    </section>
+      <section class="bendicion fade-in">
+        <p class="eyebrow">Con la bendición de Dios y de nuestros padres</p>
+        <p style="margin-top:10px;">tenemos el honor de invitarles a ser testigos del inicio de nuestra nueva historia.
+        </p>
+        <h2 class="grande script">¡Estás invitado!</h2>
+      </section>
 
-    <section class="bendicion">
-      <p class="eyebrow">Con la bendición de Dios y de nuestros padres</p>
-      <p style="margin-top:10px;">tenemos el honor de invitarles a ser testigos del inicio de nuestra nueva historia.</p>
-      <h2 class="grande script">¡Estás invitado!</h2>
-    </section>
-
-    <section>
-      <p class="eyebrow" style="text-align:center;">Detalles del gran día</p>
-      <h2 class="serif" style="text-align:center; font-size:2rem; margin-top:6px;">20 de Noviembre, 2026</h2>
-      <div class="tarjetas-evento">
-        <div class="tarjeta">
-          <p class="eyebrow">Ceremonia</p>
-          <h3>Templo de San Antonio de Padua</h3>
-          <div class="hora">17:00 Hrs.</div>
-          <p class="lugar">Ángela Peralta #105, Col. Centro, Querétaro, Qro.</p>
-          <a class="mapa" href="https://maps.app.goo.gl/MxjYpxXxLWJiFuie7" target="_blank" rel="noopener">Ver ubicación →</a>
-        </div>
-        <div class="tarjeta">
-          <p class="eyebrow">Recepción</p>
-          <h3>Casona San Antonio</h3>
-          <div class="hora">18:30 Hrs.</div>
-          <p class="lugar">Ángela Peralta #105, Col. Centro, Querétaro, Qro.</p>
-          <a class="mapa" href="https://maps.app.goo.gl/e7mZn1m1YvxKDifJA" target="_blank" rel="noopener">Ver ubicación →</a>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <p class="eyebrow" style="text-align:center;">Nuestra historia</p>
-      <div class="galeria-grid">
-        <div class="arco"><div class="placeholder-label">Foto 1</div><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsyKU9Qms790otEkjt-iMwNY24Ym1MtcDa1nWjih_Qfg&s=10" alt=""></div>
-        <div class="arco"><div class="placeholder-label">Foto 2</div><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBSDv7Cf_NU-BLfKx8ELKG07CpiH7m4Qmi4KibUQYvUA&s=10" alt=""></div>
-        <div class="arco"><div class="placeholder-label">Foto 3</div><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDq5390O6CpMVlbKTE49WMK97XdxAtZYT8KwbciV7aqQ&s=10" alt=""></div>
-        <div class="arco"><div class="placeholder-label">Foto 4</div><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWytBnkOqpMymyV5gTVSooMJBUNBMRCfoxZuYdOMK_mw&s=10" alt=""></div>
-      </div>
-    </section>
-
-    <section style="text-align:center;">
-      <p class="eyebrow">Código de vestimenta</p>
-      <h2 class="serif" style="font-size:1.8rem; margin-top:4px;">Formal</h2>
-      <p class="eyebrow" style="margin-top:26px;">Sugerencia de colores</p>
-      <div class="colores">
-        <span style="background:#DD7E63;"></span><span style="background:#BE8A3F;"></span>
-        <span style="background:#722F3A;"></span><span style="background:#7C8A6A;"></span>
-        <span style="background:#3E4E39;"></span>
-      </div>
-      <div class="info-doble">
-        <div><div class="num" id="cupoDisplay">—</div><p class="eyebrow">Lugares reservados</p></div>
-        <div><div class="num script" style="font-size:1.6rem;">No</div><p class="eyebrow">Niños</p></div>
-      </div>
-      <div class="caja-regalo">
-        <p class="eyebrow">Mesa de regalos</p>
-        <p class="serif" style="font-size:1.05rem; margin-top:8px;">Su presencia es el regalo más valioso, pero si desean obsequiarnos algo más:</p>
-        <p>Si prefieren hacer una donación en nuestra mesa de regalos, pueden hacerlo en el siguiente enlace:</p>
-        <p><a class="mapa" href="https://gt.siman.com/wishlist/share?id=446172d0-0dee-484e-8c52-46f08e5a07f3" target="_blank" rel="noopener">Hacer donación →</a></p>
-      </div>
-    </section>
-
-    <section class="rsvp" id="seccionRSVP">
-      <p class="eyebrow">Confirmar asistencia</p>
-      <h2 class="script">Familia <span id="nombreInvitado">—</span></h2>
-      <p class="cupo">Hemos reservado <span id="cupoTexto">0</span> cupo(s) para ustedes.</p>
-
-      <form id="formRSVP">
-        <div class="campo">
-          <label>¿Asistirán?</label>
-          <div class="campo-radio">
-            <label id="labelSi"><input type="radio" name="asiste" value="si" checked><span>¡Sí, ahí estaremos!</span></label>
-            <label id="labelNo"><input type="radio" name="asiste" value="no"><span>No podremos ir</span></label>
+      <section class="fade-in">
+        <p class="eyebrow" style="text-align:center;">Detalles del gran día</p>
+        <h2 class="serif" style="text-align:center; font-size:2rem; margin-top:6px;">20 de Noviembre, 2026</h2>
+        <div class="tarjetas-evento">
+          <div class="tarjeta">
+            <p class="eyebrow">Ceremonia</p>
+            <h3>Templo de San Antonio de Padua</h3>
+            <div class="hora">17:00 Hrs.</div>
+            <p class="lugar">Ángela Peralta #105, Col. Centro, Querétaro, Qro.</p>
+            <a class="mapa" href="https://maps.google.com/?q=Ángela+Peralta+#105,+Col.+Centro,+Querétaro,+Qro."
+              target="_blank" rel="noopener">Ver ubicación →</a>
+          </div>
+          <div class="tarjeta">
+            <p class="eyebrow">Recepción</p>
+            <h3>Casona San Antonio</h3>
+            <div class="hora">18:30 Hrs.</div>
+            <p class="lugar">Ángela Peralta #105, Col. Centro, Querétaro, Qro.</p>
+            <a class="mapa" href="https://maps.google.com/?q=Ángela+Peralta+#105,+Col.+Centro,+Querétaro,+Qro."
+              target="_blank" rel="noopener">Ver ubicación →</a>
           </div>
         </div>
-        <div id="camposAsistencia">
-          <div id="listaAcompanantes"></div>
-          <div class="campo"><label>Teléfono de contacto</label><input type="tel" id="telefono" placeholder="Ej. 5512345678" required></div>
-          <div class="campo"><label>¿Qué canción no puede faltar?</label><input type="text" id="cancion" placeholder="Artista - Canción"></div>
-          <div class="campo"><label>Mensaje para los novios</label><textarea id="mensaje" rows="3" placeholder="Escribe tus buenos deseos…"></textarea></div>
+      </section>
+
+      <section class="fade-in">
+        <p class="eyebrow" style="text-align:center;">Nuestra historia</p>
+        <div class="galeria-grid">
+          <div class="arco">
+            <div class="placeholder-label"><img
+                src="https://media.admagazine.com/photos/641239e4d3f4fe9a251b2477/1:1/w_1999,h_1999,c_limit/destinos-para-bodas.jpg"
+                alt=""></div>
+          </div>
+          <div class="arco">
+            <div class="placeholder-label"><img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8lYIP619qo5P5TZEp31n87UWd9YVIAmaUs8ZJ1ww_Dg&s=10"
+                alt=""></div>
+          </div>
+          <div class="arco">
+            <div class="placeholder-label"><img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8lYIP619qo5P5TZEp31n87UWd9YVIAmaUs8ZJ1ww_Dg&s=10"
+                alt=""></div>
+          </div>
+          <div class="arco">
+            <div class="placeholder-label"><img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdeuoij_2RqM7IpkqfvAPUCu_YP4owJdUrjMF1cEpfBA&s=10"
+                alt=""></div>
+          </div>
         </div>
-        <button type="submit" class="btn-enviar" id="btnEnviar">Confirmar asistencia</button>
-        <p class="msg-estado" id="msgEstado"></p>
-      </form>
+      </section>
 
-      <div class="confirmacion" id="pantallaConfirmacion">
-        <p class="eyebrow">¡Gracias por confirmar!</p>
-        <h2 class="script" style="font-size:2.4rem;">Te esperamos</h2>
-        <div class="qr-box"><div id="qrcode"></div></div>
-        <p class="nota">Guarda o toma captura de este código — lo pedirán en la entrada el día del evento para indicarte tu mesa.</p>
-      </div>
-    </section>
+      <section class="fade-in" style="text-align:center;">
+        <p class="eyebrow">Código de vestimenta</p>
+        <h2 class="serif" style="font-size:1.8rem; margin-top:4px;">Formal</h2>
+        <p class="eyebrow" style="margin-top:26px;">Sugerencia de colores</p>
+        <div class="colores">
+          <span style="background:#DD7E63;"></span><span style="background:#BE8A3F;"></span>
+          <span style="background:#722F3A;"></span><span style="background:#7C8A6A;"></span>
+          <span style="background:#3E4E39;"></span>
+        </div>
+        <div class="info-doble">
+          <div>
+            <div class="num" id="cupoDisplay">—</div>
+            <p class="eyebrow">Lugares reservados</p>
+          </div>
+          <div>
+            <div class="num script" style="font-size:1.6rem;">No</div>
+            <p class="eyebrow">Niños</p>
+          </div>
+        </div>
+        <div class="caja-regalo">
+          <p class="eyebrow">Mesa de regalos</p>
+          <p class="serif" style="font-size:1.05rem; margin-top:8px;">Su presencia es el regalo más valioso, pero si
+            desean obsequiarnos algo más:</p>
+          <p style="margin-top:12px; letter-spacing:0.05em;"><strong> <a class="mapa"
+                href="https://gt.siman.com/wishlist/share?id=446172d0-0dee-484e-8c52-46f08e5a07f3" target="_blank"
+                rel="noopener">Ver lista de deseos →</a>
+            </strong></p>
+        </div>
+      </section>
 
-    <footer><div class="divider"></div><p class="firma">E &amp; A</p></footer>
+      <section class="rsvp fade-in" id="seccionRSVP">
+        <p class="eyebrow">Confirmar asistencia</p>
+        <h2 class="script">Familia <span id="nombreInvitado">—</span></h2>
+        <p class="cupo">Hemos reservado <span id="cupoTexto">0</span> cupo(s) para ustedes.</p>
+
+        <form id="formRSVP">
+          <div class="campo">
+            <label>¿Asistirán?</label>
+            <div class="campo-radio">
+              <label id="labelSi"><input type="radio" name="asiste" value="si" checked><span>¡Sí, ahí
+                  estaremos!</span></label>
+              <label id="labelNo"><input type="radio" name="asiste" value="no"><span>No podremos ir</span></label>
+            </div>
+          </div>
+          <div id="camposAsistencia">
+            <div id="listaAcompanantes"></div>
+            <div class="campo"><label>Teléfono de contacto</label><input type="tel" id="telefono"
+                placeholder="Ej. 5512345678" required></div>
+            <div class="campo"><label>¿Qué canción no puede faltar?</label><input type="text" id="cancion"
+                placeholder="Artista - Canción"></div>
+            <div class="campo"><label>Mensaje para los novios</label><textarea id="mensaje" rows="3"
+                placeholder="Escribe tus buenos deseos…"></textarea></div>
+          </div>
+          <button type="submit" class="btn-enviar" id="btnEnviar">Confirmar asistencia</button>
+          <p class="msg-estado" id="msgEstado"></p>
+        </form>
+
+        <div class="confirmacion" id="pantallaConfirmacion">
+          <p class="eyebrow">¡Gracias por confirmar!</p>
+          <h2 class="script" style="font-size:2.4rem;">Te esperamos</h2>
+          <div class="qr-box">
+            <div id="qrcode"></div>
+          </div>
+          <p class="nota">Guarda o toma captura de este código — lo pedirán en la entrada el día del evento para
+            indicarte tu mesa.</p>
+          <button class="btn-secundario" id="btnGuardarQR">Guardar código QR</button>
+          <br>
+          <a class="link-whatsapp"
+            href="https://wa.me/50200000000?text=Hola%2C%20necesito%20cambiar%20algo%20de%20mi%20confirmaci%C3%B3n"
+            target="_blank" rel="noopener">¿Necesitas cambiar algo? Escríbenos</a>
+        </div>
+      </section>
+
+      <footer>
+        <div class="divider"></div>
+        <p class="firma">E &amp; A</p>
+      </footer>
+    </div>
+
+    <div class="estado-error" id="estadoError" style="display:none;">
+      Esta invitación no pudo encontrarse.<br>Verifica el enlace que recibiste.
+    </div>
   </div>
 
-  <div class="estado-error" id="estadoError" style="display:none;">
-    Esta invitación no pudo encontrarse.<br>Verifica el enlace que recibiste.
-  </div>
-</div>
+  <button class="btn-flotante" id="btnFlotante">Confirmar asistencia</button>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="js/config.js"></script>
-<script src="js/script.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/script.js"></script>
 </body>
+
 </html>
