@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Petit+Formal+Script&family=Jost:wght@300;400;500;600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  
 </head>
 
 <body>
@@ -39,10 +40,11 @@
             <button class="play-btn" id="btnPlay" aria-label="Reproducir música">▶</button>
             <div class="info">
               <div class="titulo-cancion" id="tituloCancion">Nombre de la canción</div>
-              <div class="subtitulo-cancion">Escuchar</div>
+              <div class="subtitulo-cancion">Escuchar </div>
             </div>
           </div>
           <audio id="audioFondo" src="" preload="none"></audio>
+          <div id="youtubeContainer" style="position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;"></div>
         </div>
 
         <div class="countdown" id="countdown">
@@ -209,6 +211,7 @@
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/script.js"></script>
 </body>

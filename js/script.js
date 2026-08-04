@@ -103,19 +103,35 @@ actualizarCountdown();
    ============================================ */
 const audioEl = document.getElementById("audioFondo");
 const btnPlay = document.getElementById("btnPlay");
+const youtubeContainer = document.getElementById("youtubeContainer");
 document.getElementById("tituloCancion").textContent = NOMBRE_CANCION;
-if (AUDIO_URL) audioEl.src = AUDIO_URL;
 
-btnPlay.addEventListener("click", () => {
-  if (!AUDIO_URL) return;
-  if (audioEl.paused) {
-    audioEl.play();
-    btnPlay.textContent = "❚❚";
-  } else {
-    audioEl.pause();
-    btnPlay.textContent = "▶";
-  }
-});
+let youtubeReproduciendo = false;
+
+if (AUDIO_URL) {
+  audioEl.src = AUDIO_URL;
+  btnPlay.addEventListener("click", () => {
+    if (audioEl.paused) {
+      audioEl.play();
+      btnPlay.textContent = "❚❚";
+    } else {
+      audioEl.pause();
+      btnPlay.textContent = "▶";
+    }
+  });
+} else if (YOUTUBE_ID) {
+  btnPlay.addEventListener("click", () => {
+    if (!youtubeReproduciendo) {
+      youtubeContainer.innerHTML = `<iframe width="220" height="124" src="https://www.youtube-nocookie.com/embed/${YOUTUBE_ID}?autoplay=1&mute=0&controls=0&playsinline=1" allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+      btnPlay.textContent = "❚❚";
+      youtubeReproduciendo = true;
+    } else {
+      youtubeContainer.innerHTML = "";
+      btnPlay.textContent = "▶";
+      youtubeReproduciendo = false;
+    }
+  });
+}
 
 /* ============================================
    6. ENVÍO DEL FORMULARIO
@@ -264,23 +280,36 @@ window.addEventListener("scroll", () => {
 /* ============================================
    11. GUARDAR QR COMO IMAGEN
    ============================================ */
-document.getElementById("btnGuardarQR").addEventListener("click", () => {
-  const canvas = document.querySelector("#qrcode canvas");
-  if (!canvas) return;
+document.getElementById("btnGuardarQR").addEventListener("click", async () => {
+  const tarjeta = document.getElementById("pantallaConfirmacion");
+  const btnGuardar = document.getElementById("btnGuardarQR");
+  const linkWsp = document.querySelector(".link-whatsapp");
 
-  if (navigator.share && navigator.canShare) {
+  // Ocultamos los botones/enlace mientras se toma la captura, para que no salgan en la imagen
+  btnGuardar.style.visibility = "hidden";
+  if (linkWsp) linkWsp.style.visibility = "hidden";
+
+  try {
+    const canvas = await html2canvas(tarjeta, {
+      backgroundColor: "#2E2822",
+      scale: 2
+    });
+
     canvas.toBlob(async (blob) => {
-      const archivo = new File([blob], "mi-qr-boda.png", { type: "image/png" });
-      if (navigator.canShare({ files: [archivo] })) {
-        try {
-          await navigator.share({ files: [archivo], title: "Mi código QR - Boda" });
-          return;
-        } catch (e) { /* si cancela, seguimos con la descarga normal */ }
+      if (navigator.share && navigator.canShare) {
+        const archivo = new File([blob], "mi-invitacion-boda.png", { type: "image/png" });
+        if (navigator.canShare({ files: [archivo] })) {
+          try {
+            await navigator.share({ files: [archivo], title: "Mi confirmación - Boda" });
+            return;
+          } catch (e) { /* si cancela, seguimos con la descarga normal */ }
+        }
       }
       descargarCanvas(canvas);
     });
-  } else {
-    descargarCanvas(canvas);
+  } finally {
+    btnGuardar.style.visibility = "visible";
+    if (linkWsp) linkWsp.style.visibility = "visible";
   }
 });
 
