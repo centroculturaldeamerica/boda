@@ -27,3 +27,8 @@ h1{ font-family:'Cormorant Garamond'; font-style:italic; font-size:1.4rem; margi
   background:#5c2a2a; color:var(--crema); border-radius:12px; padding:18px; font-size:0.85rem;
 }
 .error-box.activo{ display:block; }
+.error-box .btn-otro{
+  margin-top:14px; width:100%; padding:11px; border:1px solid rgba(248,243,234,0.4); border-radius:8px;
+  background:transparent; color:var(--crema); font-family:'Jost'; font-size:0.78rem;
+  letter-spacing:0.06em; text-transform:uppercase; cursor:pointer;
+}
