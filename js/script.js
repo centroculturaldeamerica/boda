@@ -1,4 +1,4 @@
-console.log("%c[boda script.js] versión 2026-08-04-v5 (sin swap si ya es img + decode() + verificación post-captura)", "color:#DD7E63;font-weight:bold;");
+console.log("%c[boda script.js] versión 2026-08-04-v6 (sin useCORS + red de seguridad: dibujo manual si html2canvas falla)", "color:#DD7E63;font-weight:bold;");
 
 /* ============================================
    1. LEER EL ID DE INVITACIÓN DESDE LA URL
@@ -395,20 +395,29 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
     // ya renderizó visualmente todo antes de que html2canvas lo capture.
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
+    // Nota: NO usamos useCORS aquí — es un bug conocido de html2canvas que
+    // rompe la carga de imágenes con data: URI (como el QR) al forzar
+    // crossOrigin="anonymous" en la carga interna de cada <img>.
     const canvas = await html2canvas(tarjeta, {
       backgroundColor: "#2E2822",
       scale: 2,
-      useCORS: true
+      imageTimeout: 0
     });
 
     // Verificación: ¿el área donde debería estar el QR tiene contenido real,
     // o quedó en blanco? Esto nos dice con certeza si el problema está en
     // esta captura o en un paso posterior.
-    const rectQrFinal = (imgTemporalQR || qrFuente).getBoundingClientRect();
+    const elementoQrVisible = imgTemporalQR || qrFuente;
+    const rectQrFinal = elementoQrVisible.getBoundingClientRect();
     const rectTarjetaFinal = tarjeta.getBoundingClientRect();
     const ctxCheck = canvas.getContext("2d");
-    const cx = Math.floor((rectQrFinal.left - rectTarjetaFinal.left + rectQrFinal.width / 2) * 2);
-    const cy = Math.floor((rectQrFinal.top - rectTarjetaFinal.top + rectQrFinal.height / 2) * 2);
+    const escalaCaptura = 2;
+    const qrOffsetX = (rectQrFinal.left - rectTarjetaFinal.left) * escalaCaptura;
+    const qrOffsetY = (rectQrFinal.top - rectTarjetaFinal.top) * escalaCaptura;
+    const qrAncho = rectQrFinal.width * escalaCaptura;
+    const qrAlto = rectQrFinal.height * escalaCaptura;
+    const cx = Math.floor(qrOffsetX + qrAncho / 2);
+    const cy = Math.floor(qrOffsetY + qrAlto / 2);
     let contenidoQrDetectado = false;
     try {
       const muestra = ctxCheck.getImageData(cx - 15, cy - 15, 30, 30).data;
@@ -417,6 +426,19 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
       }
     } catch (e) { console.warn("[boda] no se pudo verificar el área del QR:", e); }
     console.log("[boda] ¿el canvas capturado tiene contenido de QR visible?", contenidoQrDetectado);
+
+    // Red de seguridad: si html2canvas no dibujó el QR, lo dibujamos
+    // manualmente encima usando el bitmap real del elemento QR (esto sí
+    // siempre tiene el contenido correcto, porque lo tomamos directo del
+    // <img>/<canvas> ya renderizado en pantalla, no de lo que html2canvas
+    // haya podido o no reconstruir).
+    if (!contenidoQrDetectado) {
+      console.log("[boda] aplicando red de seguridad: dibujando el QR manualmente encima...");
+      ctxCheck.fillStyle = "#ffffff";
+      const margen = 10 * escalaCaptura;
+      ctxCheck.fillRect(qrOffsetX - margen, qrOffsetY - margen, qrAncho + margen * 2, qrAlto + margen * 2);
+      ctxCheck.drawImage(elementoQrVisible, qrOffsetX, qrOffsetY, qrAncho, qrAlto);
+    }
 
     const nombreArchivo = "mi-invitacion-boda.png";
 
