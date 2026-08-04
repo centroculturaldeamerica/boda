@@ -285,6 +285,43 @@ window.addEventListener("scroll", () => {
    el navegador móvil). Para evitarlo, capturamos la tarjeta SIN el QR
    y luego dibujamos el QR manualmente encima usando su bitmap ya
    renderizado — así nunca sale vacío. */
+
+// qrcode.js corre una prueba asíncrona interna antes de insertar el QR real
+// en el DOM. Esta función espera activamente hasta confirmar que el QR ya
+// existe y tiene contenido dibujado (no solo un canvas vacío del tamaño
+// correcto), en vez de asumir que está listo apenas se llamó new QRCode().
+function elementoQRTieneContenido(el) {
+  if (!el) return false;
+  if (el.tagName === "IMG") return el.complete && el.naturalWidth > 0;
+  if (el.tagName === "CANVAS") {
+    if (el.width === 0 || el.height === 0) return false;
+    // Revisamos que no esté completamente en blanco muestreando el centro
+    try {
+      const ctx = el.getContext("2d");
+      const { data } = ctx.getImageData(Math.floor(el.width / 2) - 5, Math.floor(el.height / 2) - 5, 10, 10);
+      // Si hay algún pixel que no sea blanco puro, asumimos que ya se dibujó el QR
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) return true;
+      }
+      return false;
+    } catch (e) {
+      // Si por algún motivo no se puede leer el canvas, confiamos en que ya está listo
+      return true;
+    }
+  }
+  return false;
+}
+
+async function esperarQRListo(qrBox, timeoutMs = 3000) {
+  const inicio = Date.now();
+  while (Date.now() - inicio < timeoutMs) {
+    const el = qrBox.querySelector("canvas") || qrBox.querySelector("img");
+    if (elementoQRTieneContenido(el)) return el;
+    await new Promise(r => setTimeout(r, 80));
+  }
+  return null;
+}
+
 document.getElementById("btnGuardarQR").addEventListener("click", async () => {
   const tarjeta = document.getElementById("pantallaConfirmacion");
   const btnGuardar = document.getElementById("btnGuardarQR");
@@ -299,16 +336,12 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
   if (linkWsp) linkWsp.style.visibility = "hidden";
 
   try {
-    const qrFuente = qrBox.querySelector("canvas") || qrBox.querySelector("img");
-    if (!qrFuente) throw new Error("El código QR aún no está listo.");
-
-    // Si el navegador lo renderizó como <img>, nos aseguramos de que ya cargó
-    if (qrFuente.tagName === "IMG" && !qrFuente.complete) {
-      await new Promise(resolve => {
-        qrFuente.onload = resolve;
-        qrFuente.onerror = resolve;
-      });
-    }
+    // qrcode.js hace una prueba interna asíncrona antes de insertar el QR real
+    // en el DOM (por eso a veces "no está listo" aunque new QRCode() ya haya
+    // retornado). Esperamos activamente hasta confirmar que existe Y tiene
+    // contenido dibujado de verdad, en lugar de asumirlo.
+    const qrFuente = await esperarQRListo(qrBox);
+    if (!qrFuente) throw new Error("El código QR aún no está listo. Intenta de nuevo en unos segundos.");
 
     const escala = 2;
     const rectTarjeta = tarjeta.getBoundingClientRect();
