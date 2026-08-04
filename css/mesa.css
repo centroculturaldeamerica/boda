@@ -1,0 +1,9 @@
+:root{ --crema:#F8F3EA; --tinta:#2E2822; --coral:#DD7E63; --vino:#722F3A; --linea:rgba(46,40,34,0.18); }
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ background:var(--tinta); color:var(--crema); font-family:'Jost', sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.card{ background:var(--crema); color:var(--tinta); border-radius:20px; padding:40px 30px; text-align:center; max-width:360px; width:100%; box-shadow:0 20px 50px -20px rgba(0,0,0,0.5); }
+.eyebrow{ font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--vino); }
+.mesa-numero{ font-family:'Cormorant Garamond'; font-size:4rem; color:var(--vino); line-height:1.1; margin:8px 0 20px; }
+.nombre{ font-family:'Cormorant Garamond'; font-size:1.5rem; font-style:italic; }
+.invitados{ margin-top:12px; font-size:0.85rem; opacity:0.75; line-height:1.5; }
+.cargando, .error{ font-family:'Cormorant Garamond'; font-style:italic; font-size:1.1rem; }

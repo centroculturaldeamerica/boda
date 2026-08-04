@@ -19,6 +19,11 @@ async function iniciar() {
     document.getElementById("contenido").style.display = "block";
     observarSecciones();
 
+    cupoMaximo = Number(data.cupo) || 1;
+    document.getElementById("nombreInvitado").textContent = data.nombre || "";
+    document.getElementById("cupoTexto").textContent = cupoMaximo;
+    document.getElementById("cupoDisplay").textContent = cupoMaximo;
+
     if (data.confirmado) {
       document.getElementById("seccionRSVP").querySelector("form").style.display = "none";
       if (data.invitados === "No asistirá") {
@@ -27,10 +32,6 @@ async function iniciar() {
         mostrarConfirmacion(idInvitacion);
       }
     } else {
-      cupoMaximo = Number(data.cupo) || 1;
-      document.getElementById("nombreInvitado").textContent = data.nombre || "";
-      document.getElementById("cupoTexto").textContent = cupoMaximo;
-      document.getElementById("cupoDisplay").textContent = cupoMaximo;
       renderAcompanantes(cupoMaximo);
     }
   } catch (err) {

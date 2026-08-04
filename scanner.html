@@ -6,37 +6,7 @@
 <title>Escáner — Evelyn &amp; Adrian</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --crema:#F8F3EA; --tinta:#2E2822; --coral:#DD7E63; --vino:#722F3A; --verde:#3E4E39; --linea:rgba(46,40,34,0.18);
-  }
-  *{ box-sizing:border-box; margin:0; padding:0; }
-  body{ background:var(--tinta); color:var(--crema); font-family:'Jost', sans-serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:24px; }
-  h1{ font-family:'Cormorant Garamond'; font-style:italic; font-size:1.4rem; margin-bottom:20px; text-align:center; }
-  #lector{ width:100%; max-width:380px; border-radius:16px; overflow:hidden; border:2px solid var(--coral); }
-  .eyebrow{ font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--coral); text-align:center; margin-top:20px; }
-
-  .resultado{
-    display:none; margin-top:24px; width:100%; max-width:380px;
-    background:var(--crema); color:var(--tinta); border-radius:16px; padding:28px 24px; text-align:center;
-  }
-  .resultado.activo{ display:block; }
-  .resultado .mesa-label{ font-size:0.68rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--vino); }
-  .resultado .mesa-numero{ font-family:'Cormorant Garamond'; font-size:3.4rem; color:var(--vino); line-height:1.1; margin:6px 0 18px; }
-  .resultado .nombre{ font-family:'Cormorant Garamond'; font-size:1.4rem; font-style:italic; }
-  .resultado .invitados{ margin-top:10px; font-size:0.85rem; opacity:0.75; }
-  .resultado .btn-otro{
-    margin-top:22px; width:100%; padding:12px; border:none; border-radius:8px;
-    background:var(--tinta); color:var(--crema); font-family:'Jost'; font-size:0.8rem;
-    letter-spacing:0.06em; text-transform:uppercase; cursor:pointer;
-  }
-
-  .error-box{
-    display:none; margin-top:24px; width:100%; max-width:380px; text-align:center;
-    background:#5c2a2a; color:var(--crema); border-radius:12px; padding:18px; font-size:0.85rem;
-  }
-  .error-box.activo{ display:block; }
-</style>
+<link rel="stylesheet" href="css/scanner.css">
 </head>
 <body>
 
@@ -56,60 +26,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="js/config.js"></script>
-<script>
-  const resultadoEl = document.getElementById("resultado");
-  const errorEl = document.getElementById("errorBox");
-  const estadoEl = document.getElementById("estadoLectura");
-  let escanerActivo = true;
-
-  const html5QrCode = new Html5Qrcode("lector");
-
-  function alEscanear(textoDecodificado) {
-    if (!escanerActivo) return;
-    escanerActivo = false;
-    estadoEl.textContent = "Código detectado, buscando...";
-    html5QrCode.pause(true);
-    buscarInvitado(textoDecodificado.trim());
-  }
-
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: { width: 240, height: 240 } },
-    alEscanear
-  ).catch(err => {
-    estadoEl.textContent = "No se pudo acceder a la cámara. Revisa los permisos del navegador.";
-  });
-
-  async function buscarInvitado(id) {
-    resultadoEl.classList.remove("activo");
-    errorEl.classList.remove("activo");
-    try {
-      const res = await fetch(`${SCRIPT_URL}?action=lookup&id=${encodeURIComponent(id)}`);
-      const data = await res.json();
-
-      if (data.encontrado && data.confirmado) {
-        document.getElementById("mesaNumero").textContent = data.mesa || "Sin asignar";
-        document.getElementById("nombreResultado").textContent = id;
-        document.getElementById("invitadosResultado").textContent = "Invitados: " + (data.invitados || "—");
-        resultadoEl.classList.add("activo");
-        estadoEl.textContent = "";
-      } else {
-        errorEl.classList.add("activo");
-        estadoEl.textContent = "";
-      }
-    } catch (err) {
-      errorEl.textContent = "Error de conexión. Intenta de nuevo.";
-      errorEl.classList.add("activo");
-    }
-  }
-
-  document.getElementById("btnOtro").addEventListener("click", () => {
-    resultadoEl.classList.remove("activo");
-    errorEl.classList.remove("activo");
-    estadoEl.textContent = "Apunta la cámara al código";
-    escanerActivo = true;
-    html5QrCode.resume();
-  });
-</script>
+<script src="js/scanner.js"></script>
 </body>
 </html>
