@@ -1,4 +1,4 @@
-console.log("%c[boda script.js] versión 2026-08-04-v4 (fix: priorizar img visible sobre canvas oculto)", "color:#DD7E63;font-weight:bold;");
+console.log("%c[boda script.js] versión 2026-08-04-v5 (sin swap si ya es img + decode() + verificación post-captura)", "color:#DD7E63;font-weight:bold;");
 
 /* ============================================
    1. LEER EL ID DE INVITACIÓN DESDE LA URL
@@ -358,33 +358,65 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
     console.log("[boda] qrFuente encontrado:", qrFuente ? qrFuente.tagName : null, qrFuente ? {w: qrFuente.offsetWidth, h: qrFuente.offsetHeight} : null);
     if (!qrFuente) throw new Error("El código QR aún no está listo. Intenta de nuevo en unos segundos.");
 
-    // Reemplazamos temporalmente el canvas/img del QR por una <img> simple
-    // con la misma imagen ya "quemada" — así html2canvas no tiene que lidiar
-    // con un canvas anidado, solo con una imagen normal ya cargada.
-    const dataUrlQR = obtenerDataURLdelQR(qrFuente);
-    const anchoOriginal = qrFuente.offsetWidth || qrFuente.width || 180;
-    const altoOriginal = qrFuente.offsetHeight || qrFuente.height || 180;
+    if (qrFuente.tagName === "IMG") {
+      // Ya es una <img> normal y visible — no necesita ningún reemplazo.
+      // Solo nos aseguramos de que el navegador ya la haya DECODIFICADO
+      // por completo (no solo "cargada"), que es más estricto que 'onload'
+      // y evita capturas a medio pintar.
+      if (qrFuente.decode) {
+        await qrFuente.decode();
+      }
+    } else {
+      // Es un <canvas> (caso poco común) — lo convertimos a <img> temporal
+      const dataUrlQR = obtenerDataURLdelQR(qrFuente);
+      const anchoOriginal = qrFuente.offsetWidth || qrFuente.width || 180;
+      const altoOriginal = qrFuente.offsetHeight || qrFuente.height || 180;
 
-    imgTemporalQR = document.createElement("img");
-    imgTemporalQR.src = dataUrlQR;
-    imgTemporalQR.width = anchoOriginal;
-    imgTemporalQR.height = altoOriginal;
-    imgTemporalQR.style.display = "block";
+      imgTemporalQR = document.createElement("img");
+      imgTemporalQR.src = dataUrlQR;
+      imgTemporalQR.width = anchoOriginal;
+      imgTemporalQR.height = altoOriginal;
+      imgTemporalQR.style.display = "block";
 
-    await new Promise((resolve, reject) => {
-      imgTemporalQR.onload = resolve;
-      imgTemporalQR.onerror = reject;
-    });
+      if (imgTemporalQR.decode) {
+        await imgTemporalQR.decode();
+      } else {
+        await new Promise((resolve, reject) => {
+          imgTemporalQR.onload = resolve;
+          imgTemporalQR.onerror = reject;
+        });
+      }
 
-    elementoOriginalQR = qrFuente;
-    qrFuente.replaceWith(imgTemporalQR);
+      elementoOriginalQR = qrFuente;
+      qrFuente.replaceWith(imgTemporalQR);
+    }
 
-    // Ahora sí, capturamos la tarjeta completa (ya con el QR como imagen simple)
+    // Esperamos dos frames de pintura para asegurarnos de que el navegador
+    // ya renderizó visualmente todo antes de que html2canvas lo capture.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
     const canvas = await html2canvas(tarjeta, {
       backgroundColor: "#2E2822",
       scale: 2,
       useCORS: true
     });
+
+    // Verificación: ¿el área donde debería estar el QR tiene contenido real,
+    // o quedó en blanco? Esto nos dice con certeza si el problema está en
+    // esta captura o en un paso posterior.
+    const rectQrFinal = (imgTemporalQR || qrFuente).getBoundingClientRect();
+    const rectTarjetaFinal = tarjeta.getBoundingClientRect();
+    const ctxCheck = canvas.getContext("2d");
+    const cx = Math.floor((rectQrFinal.left - rectTarjetaFinal.left + rectQrFinal.width / 2) * 2);
+    const cy = Math.floor((rectQrFinal.top - rectTarjetaFinal.top + rectQrFinal.height / 2) * 2);
+    let contenidoQrDetectado = false;
+    try {
+      const muestra = ctxCheck.getImageData(cx - 15, cy - 15, 30, 30).data;
+      for (let i = 0; i < muestra.length; i += 4) {
+        if (muestra[i] < 250 || muestra[i + 1] < 250 || muestra[i + 2] < 250) { contenidoQrDetectado = true; break; }
+      }
+    } catch (e) { console.warn("[boda] no se pudo verificar el área del QR:", e); }
+    console.log("[boda] ¿el canvas capturado tiene contenido de QR visible?", contenidoQrDetectado);
 
     const nombreArchivo = "mi-invitacion-boda.png";
 
@@ -406,6 +438,7 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
     link.click();
     setTimeout(() => URL.revokeObjectURL(link.href), 5000);
   } catch (err) {
+    console.error("[boda] error generando imagen:", err);
     alert("No se pudo generar la imagen. Intenta de nuevo.");
   } finally {
     // Restauramos el QR original en el DOM (por si el usuario intenta de nuevo o sigue navegando)
