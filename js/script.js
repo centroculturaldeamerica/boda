@@ -278,44 +278,87 @@ window.addEventListener("scroll", () => {
 });
 
 /* ============================================
-   11. GUARDAR QR COMO IMAGEN
-   ============================================ */
+   11. GUARDAR TARJETA COMPLETA COMO PDF
+   ============================================
+   Nota: html2canvas no siempre logra capturar bien el <canvas>/<img>
+   que genera qrcode.js (queda en blanco, sobre todo al compartir desde
+   el navegador móvil). Para evitarlo, capturamos la tarjeta SIN el QR
+   y luego dibujamos el QR manualmente encima usando su bitmap ya
+   renderizado — así nunca sale vacío. */
 document.getElementById("btnGuardarQR").addEventListener("click", async () => {
   const tarjeta = document.getElementById("pantallaConfirmacion");
   const btnGuardar = document.getElementById("btnGuardarQR");
   const linkWsp = document.querySelector(".link-whatsapp");
+  const qrBox = document.getElementById("qrcode");
+  const textoOriginalBtn = btnGuardar.textContent;
 
-  // Ocultamos los botones/enlace mientras se toma la captura, para que no salgan en la imagen
+  // Ocultamos los botones/enlace mientras se toma la captura, para que no salgan en el PDF
+  btnGuardar.disabled = true;
+  btnGuardar.textContent = "Generando PDF...";
   btnGuardar.style.visibility = "hidden";
   if (linkWsp) linkWsp.style.visibility = "hidden";
 
   try {
+    const qrFuente = qrBox.querySelector("canvas") || qrBox.querySelector("img");
+    if (!qrFuente) throw new Error("El código QR aún no está listo.");
+
+    // Si el navegador lo renderizó como <img>, nos aseguramos de que ya cargó
+    if (qrFuente.tagName === "IMG" && !qrFuente.complete) {
+      await new Promise(resolve => {
+        qrFuente.onload = resolve;
+        qrFuente.onerror = resolve;
+      });
+    }
+
+    const escala = 2;
+    const rectTarjeta = tarjeta.getBoundingClientRect();
+    const rectQr = qrFuente.getBoundingClientRect();
+    const offsetX = (rectQr.left - rectTarjeta.left) * escala;
+    const offsetY = (rectQr.top - rectTarjeta.top) * escala;
+    const anchoQr = rectQr.width * escala;
+    const altoQr = rectQr.height * escala;
+
+    // 1. Capturamos toda la tarjeta EXCEPTO el QR
     const canvas = await html2canvas(tarjeta, {
       backgroundColor: "#2E2822",
-      scale: 2
+      scale: escala,
+      ignoreElements: (el) => el.id === "qrcode"
     });
 
-    canvas.toBlob(async (blob) => {
-      if (navigator.share && navigator.canShare) {
-        const archivo = new File([blob], "mi-invitacion-boda.png", { type: "image/png" });
-        if (navigator.canShare({ files: [archivo] })) {
-          try {
-            await navigator.share({ files: [archivo], title: "Mi confirmación - Boda" });
-            return;
-          } catch (e) { /* si cancela, seguimos con la descarga normal */ }
-        }
-      }
-      descargarCanvas(canvas);
+    // 2. Dibujamos el QR manualmente encima (fondo blanco + bitmap real del QR)
+    const ctx = canvas.getContext("2d");
+    const margen = 10 * escala;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(offsetX - margen, offsetY - margen, anchoQr + margen * 2, altoQr + margen * 2);
+    ctx.drawImage(qrFuente, offsetX, offsetY, anchoQr, altoQr);
+
+    // 3. Convertimos el resultado a un PDF con el mismo tamaño/proporción que la tarjeta
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: canvas.width > canvas.height ? "landscape" : "portrait",
+      unit: "px",
+      format: [canvas.width, canvas.height]
     });
+    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, canvas.width, canvas.height);
+
+    const nombreArchivo = "mi-invitacion-boda.pdf";
+
+    if (navigator.share && navigator.canShare) {
+      const archivo = new File([pdf.output("blob")], nombreArchivo, { type: "application/pdf" });
+      if (navigator.canShare({ files: [archivo] })) {
+        try {
+          await navigator.share({ files: [archivo], title: "Mi confirmación - Boda" });
+          return;
+        } catch (e) { /* si cancela, seguimos con la descarga normal */ }
+      }
+    }
+    pdf.save(nombreArchivo);
+  } catch (err) {
+    alert("No se pudo generar el PDF. Intenta de nuevo.");
   } finally {
+    btnGuardar.disabled = false;
+    btnGuardar.textContent = textoOriginalBtn;
     btnGuardar.style.visibility = "visible";
     if (linkWsp) linkWsp.style.visibility = "visible";
   }
 });
-
-function descargarCanvas(canvas) {
-  const link = document.createElement("a");
-  link.download = "mi-qr-boda.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-}
