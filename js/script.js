@@ -280,32 +280,31 @@ window.addEventListener("scroll", () => {
 /* ============================================
    11. GUARDAR TARJETA COMPLETA COMO PDF
    ============================================
-   Nota: html2canvas no siempre logra capturar bien el <canvas>/<img>
-   que genera qrcode.js (queda en blanco, sobre todo al compartir desde
-   el navegador móvil). Para evitarlo, capturamos la tarjeta SIN el QR
-   y luego dibujamos el QR manualmente encima usando su bitmap ya
-   renderizado — así nunca sale vacío. */
+   Nota: html2canvas es poco confiable capturando un <canvas> anidado
+   (el que genera qrcode.js) — a veces sale en blanco, tanto en móvil
+   como en escritorio. La forma robusta de evitarlo es NO depender de
+   que html2canvas "fotografíe" ese canvas: en vez de eso, convertimos
+   el QR a una <img> simple con esa misma imagen ANTES de capturar.
+   html2canvas maneja imágenes ya cargadas de forma mucho más consistente
+   que canvases anidados. */
 
 // qrcode.js corre una prueba asíncrona interna antes de insertar el QR real
-// en el DOM. Esta función espera activamente hasta confirmar que el QR ya
-// existe y tiene contenido dibujado (no solo un canvas vacío del tamaño
-// correcto), en vez de asumir que está listo apenas se llamó new QRCode().
+// en el DOM. Esperamos activamente hasta confirmar que existe y tiene
+// contenido dibujado de verdad (no solo un canvas vacío del tamaño
+// correcto), en vez de asumir que ya está listo.
 function elementoQRTieneContenido(el) {
   if (!el) return false;
   if (el.tagName === "IMG") return el.complete && el.naturalWidth > 0;
   if (el.tagName === "CANVAS") {
     if (el.width === 0 || el.height === 0) return false;
-    // Revisamos que no esté completamente en blanco muestreando el centro
     try {
       const ctx = el.getContext("2d");
       const { data } = ctx.getImageData(Math.floor(el.width / 2) - 5, Math.floor(el.height / 2) - 5, 10, 10);
-      // Si hay algún pixel que no sea blanco puro, asumimos que ya se dibujó el QR
       for (let i = 0; i < data.length; i += 4) {
         if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) return true;
       }
       return false;
     } catch (e) {
-      // Si por algún motivo no se puede leer el canvas, confiamos en que ya está listo
       return true;
     }
   }
@@ -322,50 +321,65 @@ async function esperarQRListo(qrBox, timeoutMs = 3000) {
   return null;
 }
 
+// Convierte lo que haya dibujado qrcode.js (canvas o img) a una data URL PNG,
+// sin importar cuál de los dos haya usado el navegador.
+function obtenerDataURLdelQR(qrFuente) {
+  if (qrFuente.tagName === "CANVAS") {
+    return qrFuente.toDataURL("image/png");
+  }
+  const tmp = document.createElement("canvas");
+  tmp.width = qrFuente.naturalWidth;
+  tmp.height = qrFuente.naturalHeight;
+  tmp.getContext("2d").drawImage(qrFuente, 0, 0);
+  return tmp.toDataURL("image/png");
+}
+
 document.getElementById("btnGuardarQR").addEventListener("click", async () => {
   const tarjeta = document.getElementById("pantallaConfirmacion");
   const btnGuardar = document.getElementById("btnGuardarQR");
   const linkWsp = document.querySelector(".link-whatsapp");
   const qrBox = document.getElementById("qrcode");
   const textoOriginalBtn = btnGuardar.textContent;
+  let elementoOriginalQR = null;
+  let imgTemporalQR = null;
 
-  // Ocultamos los botones/enlace mientras se toma la captura, para que no salgan en el PDF
   btnGuardar.disabled = true;
   btnGuardar.textContent = "Generando PDF...";
   btnGuardar.style.visibility = "hidden";
   if (linkWsp) linkWsp.style.visibility = "hidden";
 
   try {
-    // qrcode.js hace una prueba interna asíncrona antes de insertar el QR real
-    // en el DOM (por eso a veces "no está listo" aunque new QRCode() ya haya
-    // retornado). Esperamos activamente hasta confirmar que existe Y tiene
-    // contenido dibujado de verdad, en lugar de asumirlo.
     const qrFuente = await esperarQRListo(qrBox);
     if (!qrFuente) throw new Error("El código QR aún no está listo. Intenta de nuevo en unos segundos.");
 
-    const escala = 2;
-    const rectTarjeta = tarjeta.getBoundingClientRect();
-    const rectQr = qrFuente.getBoundingClientRect();
-    const offsetX = (rectQr.left - rectTarjeta.left) * escala;
-    const offsetY = (rectQr.top - rectTarjeta.top) * escala;
-    const anchoQr = rectQr.width * escala;
-    const altoQr = rectQr.height * escala;
+    // Reemplazamos temporalmente el canvas/img del QR por una <img> simple
+    // con la misma imagen ya "quemada" — así html2canvas no tiene que lidiar
+    // con un canvas anidado, solo con una imagen normal ya cargada.
+    const dataUrlQR = obtenerDataURLdelQR(qrFuente);
+    const anchoOriginal = qrFuente.offsetWidth || qrFuente.width || 180;
+    const altoOriginal = qrFuente.offsetHeight || qrFuente.height || 180;
 
-    // 1. Capturamos toda la tarjeta EXCEPTO el QR
-    const canvas = await html2canvas(tarjeta, {
-      backgroundColor: "#2E2822",
-      scale: escala,
-      ignoreElements: (el) => el.id === "qrcode"
+    imgTemporalQR = document.createElement("img");
+    imgTemporalQR.src = dataUrlQR;
+    imgTemporalQR.width = anchoOriginal;
+    imgTemporalQR.height = altoOriginal;
+    imgTemporalQR.style.display = "block";
+
+    await new Promise((resolve, reject) => {
+      imgTemporalQR.onload = resolve;
+      imgTemporalQR.onerror = reject;
     });
 
-    // 2. Dibujamos el QR manualmente encima (fondo blanco + bitmap real del QR)
-    const ctx = canvas.getContext("2d");
-    const margen = 10 * escala;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(offsetX - margen, offsetY - margen, anchoQr + margen * 2, altoQr + margen * 2);
-    ctx.drawImage(qrFuente, offsetX, offsetY, anchoQr, altoQr);
+    elementoOriginalQR = qrFuente;
+    qrFuente.replaceWith(imgTemporalQR);
 
-    // 3. Convertimos el resultado a un PDF con el mismo tamaño/proporción que la tarjeta
+    // Ahora sí, capturamos la tarjeta completa (ya con el QR como imagen simple)
+    const canvas = await html2canvas(tarjeta, {
+      backgroundColor: "#2E2822",
+      scale: 2,
+      useCORS: true
+    });
+
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({
       orientation: canvas.width > canvas.height ? "landscape" : "portrait",
@@ -389,6 +403,10 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
   } catch (err) {
     alert("No se pudo generar el PDF. Intenta de nuevo.");
   } finally {
+    // Restauramos el QR original en el DOM (por si el usuario intenta de nuevo o sigue navegando)
+    if (imgTemporalQR && elementoOriginalQR && imgTemporalQR.isConnected) {
+      imgTemporalQR.replaceWith(elementoOriginalQR);
+    }
     btnGuardar.disabled = false;
     btnGuardar.textContent = textoOriginalBtn;
     btnGuardar.style.visibility = "visible";
