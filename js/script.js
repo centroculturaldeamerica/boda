@@ -1,4 +1,4 @@
-console.log("%c[boda script.js] versión 2026-08-04-v3 (guardar imagen con fix de QR)", "color:#DD7E63;font-weight:bold;");
+console.log("%c[boda script.js] versión 2026-08-04-v4 (fix: priorizar img visible sobre canvas oculto)", "color:#DD7E63;font-weight:bold;");
 
 /* ============================================
    1. LEER EL ID DE INVITACIÓN DESDE LA URL
@@ -316,7 +316,9 @@ function elementoQRTieneContenido(el) {
 async function esperarQRListo(qrBox, timeoutMs = 3000) {
   const inicio = Date.now();
   while (Date.now() - inicio < timeoutMs) {
-    const el = qrBox.querySelector("canvas") || qrBox.querySelector("img");
+    // qrcode.js crea un <canvas> OCULTO (display:none) para dibujar internamente,
+    // y un <img> VISIBLE con el resultado — por eso buscamos primero el img real.
+    const el = qrBox.querySelector("img") || qrBox.querySelector("canvas");
     if (elementoQRTieneContenido(el)) return el;
     await new Promise(r => setTimeout(r, 80));
   }
