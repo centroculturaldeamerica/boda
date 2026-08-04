@@ -1,3 +1,5 @@
+console.log("%c[boda script.js] versión 2026-08-04-v3 (guardar imagen con fix de QR)", "color:#DD7E63;font-weight:bold;");
+
 /* ============================================
    1. LEER EL ID DE INVITACIÓN DESDE LA URL
    (aquí SÍ funciona leerlo de window.location, porque esta página
@@ -349,7 +351,9 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
   if (linkWsp) linkWsp.style.visibility = "hidden";
 
   try {
+    console.log("[boda] iniciando generación de imagen...");
     const qrFuente = await esperarQRListo(qrBox);
+    console.log("[boda] qrFuente encontrado:", qrFuente ? qrFuente.tagName : null, qrFuente ? {w: qrFuente.offsetWidth, h: qrFuente.offsetHeight} : null);
     if (!qrFuente) throw new Error("El código QR aún no está listo. Intenta de nuevo en unos segundos.");
 
     // Reemplazamos temporalmente el canvas/img del QR por una <img> simple
