@@ -278,7 +278,7 @@ window.addEventListener("scroll", () => {
 });
 
 /* ============================================
-   11. GUARDAR TARJETA COMPLETA COMO PDF
+   11. GUARDAR TARJETA COMPLETA COMO IMAGEN (PNG)
    ============================================
    Nota: html2canvas es poco confiable capturando un <canvas> anidado
    (el que genera qrcode.js) — a veces sale en blanco, tanto en móvil
@@ -344,7 +344,7 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
   let imgTemporalQR = null;
 
   btnGuardar.disabled = true;
-  btnGuardar.textContent = "Generando PDF...";
+  btnGuardar.textContent = "Generando imagen...";
   btnGuardar.style.visibility = "hidden";
   if (linkWsp) linkWsp.style.visibility = "hidden";
 
@@ -380,18 +380,12 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
       useCORS: true
     });
 
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({
-      orientation: canvas.width > canvas.height ? "landscape" : "portrait",
-      unit: "px",
-      format: [canvas.width, canvas.height]
-    });
-    pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, canvas.width, canvas.height);
+    const nombreArchivo = "mi-invitacion-boda.png";
 
-    const nombreArchivo = "mi-invitacion-boda.pdf";
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
 
     if (navigator.share && navigator.canShare) {
-      const archivo = new File([pdf.output("blob")], nombreArchivo, { type: "application/pdf" });
+      const archivo = new File([blob], nombreArchivo, { type: "image/png" });
       if (navigator.canShare({ files: [archivo] })) {
         try {
           await navigator.share({ files: [archivo], title: "Mi confirmación - Boda" });
@@ -399,9 +393,14 @@ document.getElementById("btnGuardarQR").addEventListener("click", async () => {
         } catch (e) { /* si cancela, seguimos con la descarga normal */ }
       }
     }
-    pdf.save(nombreArchivo);
+
+    const link = document.createElement("a");
+    link.download = nombreArchivo;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 5000);
   } catch (err) {
-    alert("No se pudo generar el PDF. Intenta de nuevo.");
+    alert("No se pudo generar la imagen. Intenta de nuevo.");
   } finally {
     // Restauramos el QR original en el DOM (por si el usuario intenta de nuevo o sigue navegando)
     if (imgTemporalQR && elementoOriginalQR && imgTemporalQR.isConnected) {
